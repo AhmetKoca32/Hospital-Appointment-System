@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="_csrf" content="${_csrf.token}">
+    <meta name="_csrf_header" content="${_csrf.headerName}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Hospital Admin</a>
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Settings</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <h2>Raporlar</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Hastalık Dağılımı</h4>
+            <canvas id="diseaseDistributionChart"></canvas>
+            <script>
+                var ctx = document.getElementById('diseaseDistributionChart').getContext('2d');
+                var diseaseDistributionChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Gribal Enfeksiyon', 'Baş Ağrısı', 'Göz Enfeksiyonu', 'Ateş'],
+                        datasets: [{
+                            label: 'Hastalık Dağılımı',
+                            data: [30, 25, 15, 30],
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return tooltipItem.label + ': ' + tooltipItem.raw + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+        <div class="col-md-6">
+            <h4>Randevu İstatistikleri</h4>
+            <canvas id="appointmentStatsChart"></canvas>
+            <script>
+                var ctx = document.getElementById('appointmentStatsChart').getContext('2d');
+                var appointmentStatsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Ocak', 'Şubat', 'Mart', 'Nisan'],
+                        datasets: [{
+                            label: 'Randevu Sayısı',
+                            data: [10, 20, 15, 25],
+                            backgroundColor: '#4BC0C0',
+                            borderColor: '#4BC0C0',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return tooltipItem.label + ': ' + tooltipItem.raw;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <h2>Kullanıcı Yönetimi</h2>
+    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#addUserModal">
+        Kullanıcı Ekle
+    </button>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Ad</th>
+            <th>Rol</th>
+            <th>Aksiyonlar</th>
+        </tr>
+        </thead>
+        <tbody id="userTableBody">
+        <!-- Kullanıcı listesi burada yer alacak -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Kullanıcı Ekle Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel">Yeni Kullanıcı Ekle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label for="userName">Ad:</label>
+                        <input type="text" class="form-control" id="userName" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userRole">Rol:</label>
+                        <select class="form-control" id="userRole" name="role" required>
+                            <option value="">Seçiniz</option>
+                            <option value="ADMIN">Admin</option>
+                            <option value="DOCTOR">Doktor</option>
+                            <option value="PATIENT">Hasta</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Ekle</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <h2>Hastane Ayarları</h2>
+    <form>
+        <div class="form-group">
+            <label for="hospitalName">Hastane Adı</label>
+            <input type="text" class="form-control" id="hospitalName" placeholder="Hastane Adı">
+        </div>
+        <div class="form-group">
+            <label for="hospitalAddress">Adres</label>
+            <input type="text" class="form-control" id="hospitalAddress" placeholder="Adres">
+        </div>
+        <div class="form-group">
+            <label for="contactInfo">İletişim Bilgileri</label>
+            <input type="text" class="form-control" id="contactInfo" placeholder="İletişim Bilgileri">
+        </div>
+        <button type="submit" class="btn btn-primary">Kaydet</button>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // Kullanıcı Ekleme Fonksiyonu
+    $(document).ready(function() {
+        $('#addUserForm').on('submit', function(event) {
+            event.preventDefault();
+            const userName = $('#userName').val();
+            const userRole = $('#userRole').val();
+
+            fetch('/api/users/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    username: userName,
+                    password: '', // Şifre boş bırakıldı; uygun bir şifre oluşturulmalı
+                    role: userRole,
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Kullanıcı başarıyla eklendi:', data);
+                    $('#addUserModal').modal('hide');
+                    $('#addUserForm')[0].reset();
+                    loadUsers(); // Kullanıcı tablosunu güncellemek için loadUsers() fonksiyonu çağrılacak
+                })
+                .catch(error => {
+                    console.error('Hata oluştu:', error);
+                });
+        });
+
+        function loadUsers() {
+            fetch('/api/users/all')
+                .then(response => response.json())
+                .then(users => {
+                    $('#userTableBody').empty();
+                    users.forEach(user => {
+                        $('#userTableBody').append(`
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>${user.username}</td>
+                            <td>${user.role}</td>
+                            <td>
+                                <button class="btn btn-info btn-sm">Düzenle</button>
+                                <button class="btn btn-danger btn-sm">Sil</button>
+                            </td>
+                        </tr>
+                    `);
+                    });
+                })
+                .catch(error => {
+                    console.error('Kullanıcılar yüklenirken hata oluştu:', error);
+                });
+        }
+
+        // Sayfa yüklendiğinde kullanıcıları yükle
+        loadUsers();
+    });
+</script>
+</body>
+</html>
